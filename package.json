@@ -36,6 +36,9 @@
     "workbox-webpack-plugin": "^7.1.0"
   },
   "dependencies": {
-    "bootstrap": "^5.3.3"
+    "bootstrap": "^5.3.3",
+    "mini-css-extract-plugin": "^2.9.0",
+    "on-change": "^5.0.1",
+    "yup": "^1.4.0"
   }
 }
