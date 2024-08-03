@@ -13,10 +13,13 @@ export default (data, feedsElement, i18nextInstance) => {
 	cardBody.append(cardTitle);
 	card.append(cardBody);
 
-	data.forEach((feed) => {
-		const list = document.createElement('ul');
-		list.classList.add('list-group', 'border-0', 'rounded-0');
+	const list = document.createElement('ul');
+	list.classList.add('list-group', 'border-0', 'rounded-0');
 
+	card.append(list);
+	feedsElement.append(card);
+
+	data.forEach((feed) => {
 		const listItem = document.createElement('li');
 		listItem.classList.add('list-group-item', 'border-0', 'border-end-0');
 
@@ -28,10 +31,8 @@ export default (data, feedsElement, i18nextInstance) => {
 		feedDescription.classList.add('m-0', 'small', 'text-black-50');
 		feedDescription.textContent = feed.description;
 
-		listItem.append(feedDescription);
 		listItem.append(feedTittle);
+		listItem.append(feedDescription);
 		list.prepend(listItem);
-		card.append(list);
-		feedsElement.append(card);
 	});
 };

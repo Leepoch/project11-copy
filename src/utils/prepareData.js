@@ -1,13 +1,14 @@
 import _ from 'lodash';
 
 export default (doc, urlsLength) => {
-  const data = {
+  const feedData = {
     id: urlsLength,
     title: doc.querySelector('title').textContent,
     description: doc.querySelector('description').textContent,
     items: [],
   };
 
+  const postsData = [];
   doc.querySelectorAll('item').forEach((itemDoc) => {
     const item = {
       id: _.uniqueId(),
@@ -16,7 +17,7 @@ export default (doc, urlsLength) => {
       description: itemDoc.querySelector('description').textContent,
       link: itemDoc.querySelector('link').textContent,
     };
-    data.items.push(item);
+    postsData.push(item);
   });
-  return data;
+  return { feedData, postsData };
 };

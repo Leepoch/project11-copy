@@ -9,21 +9,20 @@ export default (data, postsElement, i18nextInstance) => {
     </div>
     `
     postsElement.innerHTML = card;
-    data.forEach((feed) => {
-        const list = postsElement.querySelector('ul');
-        feed.items.forEach((item) => {
-            const listItem = document.createElement('li');
-            listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between');
-            listItem.classList.add('align-items-start', 'border-0', 'border-end-0');
-            listItem.innerHTML = `
-                <a class="fw-bold" data-id="${item.id}" target="_blank" rel="noopener noreferrer"><a/>
-                <button type="button" class="btn btn-outline-primary btn-sm" data-id="${item.id}"
-                data-bs-toggle="modal">${i18nextInstance.t('viewBtn')}</button>
-            `
-            const link = listItem.querySelector('a');
-            link.setAttribute('href', `${item.link}`);
-            link.textContent = item.title;
-            list.prepend(listItem);
-        });
+    const list = postsElement.querySelector('ul');
+
+    data.forEach((post) => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between');
+        listItem.classList.add('align-items-start', 'border-0', 'border-end-0');
+        listItem.innerHTML = `
+            <a class="fw-bold" data-id="${post.id}" target="_blank" rel="noopener noreferrer"><a/>
+            <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.id}"
+            data-bs-toggle="modal" data-bs-target="#modal">${i18nextInstance.t('viewBtn')}</button>
+        `
+        const link = listItem.querySelector('a');
+        link.setAttribute('href', `${post.link}`);
+        link.textContent = post.title;
+        list.append(listItem);
     });
 }

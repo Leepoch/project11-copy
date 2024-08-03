@@ -6,7 +6,8 @@ import ru from './locales/ru';
 import parser from './utils/parserRSS';
 import createFeeds from './utils/createFeeds';
 import createPosts from './utils/createPosts';
-import prepareFeedData from './utils/prepareFeedData';
+import prepareData from './utils/prepareData';
+import timeout from './utils/timeout';
 
 const render = (elements, path, value, i18nextInstance, watchedState) => {
   const { input } = elements;
@@ -42,13 +43,34 @@ const render = (elements, path, value, i18nextInstance, watchedState) => {
       input.focus();
     }
   }
-  if (path === 'data') {
+  if (path === 'data.postsData') {
     const feedsElement = document.querySelector('.feeds');
     const postsElement = document.querySelector('.posts');
 
-    const data = onChange.target(watchedState).data;
-    createFeeds(data, feedsElement, i18nextInstance);
-    createPosts(data, postsElement, i18nextInstance);
+    const feedsData = onChange.target(watchedState).data.feedsData;
+    const postsData = onChange.target(watchedState).data.postsData;
+    createFeeds(feedsData, feedsElement, i18nextInstance);
+    createPosts(postsData, postsElement, i18nextInstance);
+
+    const postsBtn = postsElement.querySelectorAll('button');
+    postsBtn.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const modalTitle = document.querySelector('.modal-title');
+        const modalBody = document.querySelector('.modal-body');
+        const modalFooter = document.querySelector('.modal-footer');
+        const modalLink = modalFooter.querySelector('a');
+        const activePostId = e.target.dataset.id;
+        const activeLink = postsElement.querySelector(`a[data-id="${activePostId}"]`)
+        const [ activePostData ] = postsData.filter((post) => post.id === activePostId);
+        const { title, description, link } = activePostData;
+
+        activeLink.classList.remove('fw-bold');
+        activeLink.classList.add('fw-normal', 'link-secondary');
+        modalTitle.textContent = title;
+        modalBody.textContent = description;
+        modalLink.setAttribute('href', link);
+      });
+    });
   }
 };
 
@@ -59,7 +81,10 @@ export default () => {
       error: '',
     },
     urls: [],
-    data: [],
+    data: {
+      feedsData: [],
+      postsData: [],
+    },
   };
 
   const elements = {
@@ -97,8 +122,9 @@ export default () => {
             const doc = parser(response.data);
             watchedState.urls.push(validationResult);
             watchedState.form.state = 'finished';
-            const data = prepareFeedData(doc, urls.length);
-            watchedState.data.push(data);
+            const { feedData, postsData } = prepareData(doc, urls.length);
+            watchedState.data.feedsData.push(feedData);
+            watchedState.data.postsData.push(...postsData);
           }).catch((error) => {
             watchedState.form.error = error.message;
           });
@@ -106,4 +132,5 @@ export default () => {
         watchedState.form.error = error.message;
       });
   });
+  timeout(watchedState);
 };
