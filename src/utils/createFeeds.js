@@ -1,38 +1,43 @@
-export default (data, feedsElement, i18nextInstance) => {
-	feedsElement.innerHTML = '';
-	const card = document.createElement('div');
-	card.classList.add('card', 'border-0');
+import onChange from 'on-change';
 
-	const cardBody = document.createElement('div');
-	cardBody.classList.add('card-body');
+export default (watchedState, i18nextInstance) => {
+  const feedsElement = document.querySelector('.feeds');
+  const { feedsData } = onChange.target(watchedState).data;
 
-	const cardTitle = document.createElement('h2');
-	cardTitle.classList.add('card-title', 'h4');
-	cardTitle.textContent = i18nextInstance.t('feedsTitle');
+  feedsElement.innerHTML = '';
+  const card = document.createElement('div');
+  card.classList.add('card', 'border-0');
 
-	cardBody.append(cardTitle);
-	card.append(cardBody);
+  const cardBody = document.createElement('div');
+  cardBody.classList.add('card-body');
 
-	const list = document.createElement('ul');
-	list.classList.add('list-group', 'border-0', 'rounded-0');
+  const cardTitle = document.createElement('h2');
+  cardTitle.classList.add('card-title', 'h4');
+  cardTitle.textContent = i18nextInstance.t('feedsTitle');
 
-	card.append(list);
-	feedsElement.append(card);
+  cardBody.append(cardTitle);
+  card.append(cardBody);
 
-	data.forEach((feed) => {
-		const listItem = document.createElement('li');
-		listItem.classList.add('list-group-item', 'border-0', 'border-end-0');
+  const list = document.createElement('ul');
+  list.classList.add('list-group', 'border-0', 'rounded-0');
 
-		const feedTittle = document.createElement('h3');
-		feedTittle.classList.add('h6', 'm-0');
-		feedTittle.textContent = feed.title;
+  card.append(list);
+  feedsElement.append(card);
 
-		const feedDescription = document.createElement('p');
-		feedDescription.classList.add('m-0', 'small', 'text-black-50');
-		feedDescription.textContent = feed.description;
+  feedsData.forEach((feed) => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('list-group-item', 'border-0', 'border-end-0');
 
-		listItem.append(feedTittle);
-		listItem.append(feedDescription);
-		list.prepend(listItem);
-	});
+    const feedTittle = document.createElement('h3');
+    feedTittle.classList.add('h6', 'm-0');
+    feedTittle.textContent = feed.title;
+
+    const feedDescription = document.createElement('p');
+    feedDescription.classList.add('m-0', 'small', 'text-black-50');
+    feedDescription.textContent = feed.description;
+
+    listItem.append(feedTittle);
+    listItem.append(feedDescription);
+    list.prepend(listItem);
+  });
 };

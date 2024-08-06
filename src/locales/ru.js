@@ -7,5 +7,6 @@ export default {
     feedsTitle: 'Фиды',
     postsTitle: 'Посты',
     viewBtn: 'Просмотр',
+    networkError: 'Ошибка сети',
   },
 };

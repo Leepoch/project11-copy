@@ -2,15 +2,16 @@ import { string } from 'yup';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
-import ru from './locales/ru';
-import parser from './utils/parserRSS';
-import createFeeds from './utils/createFeeds';
-import createPosts from './utils/createPosts';
-import prepareData from './utils/prepareData';
-import timeout from './utils/timeout';
-import addProxy from './utils/addProxy';
+import ru from './locales/ru.js';
+import parser from './utils/parserRSS.js';
+import createFeeds from './utils/createFeeds.js';
+import createPosts from './utils/createPosts.js';
+import prepareData from './utils/prepareData.js';
+import timeout from './utils/timeout.js';
+import addProxy from './utils/addProxy.js';
 
 const render = (elements, path, value, i18nextInstance, watchedState) => {
+  const newWatchedState = { ...watchedState };
   const { input } = elements;
   const { feedback } = elements;
   const postsElement = document.querySelector('.posts');
@@ -51,12 +52,12 @@ const render = (elements, path, value, i18nextInstance, watchedState) => {
       input.focus();
     }
   }
-  if (path === 'data.postsData') { 
-    createFeeds(watchedState, i18nextInstance);
-    createPosts(watchedState, i18nextInstance);
+  if (path === 'data.postsData') {
+    createFeeds(newWatchedState, i18nextInstance);
+    createPosts(newWatchedState, i18nextInstance);
 
     const postLinks = postsElement.querySelectorAll('a');
-    const viewedPostsId = onChange.target(watchedState).uiState.viewedPostsId;
+    const { viewedPostsId } = onChange.target(newWatchedState).uiState;
     postLinks.forEach((link) => {
       if (viewedPostsId.includes(link.dataset.id)) {
         link.classList.remove('fw-bold');
@@ -66,29 +67,29 @@ const render = (elements, path, value, i18nextInstance, watchedState) => {
     postsElement.addEventListener('click', (e) => {
       if (e.target.hasAttribute('data-id')) {
         if (!viewedPostsId.includes(e.target.dataset.id)) {
-          watchedState.uiState.activePostId = e.target.dataset.id;
-          watchedState.uiState.viewedPostsId.push(e.target.dataset.id);
+          newWatchedState.uiState.activePostId = e.target.dataset.id;
+          newWatchedState.uiState.viewedPostsId.push(e.target.dataset.id);
         }
       }
       if (e.target.tagName.toLowerCase() === 'button') {
-        watchedState.uiState.activeModalId = e.target.dataset.id;
+        newWatchedState.uiState.activeModalId = e.target.dataset.id;
       }
     });
   }
   if (path === 'uiState.viewedPostsId') {
-    const activePostId = onChange.target(watchedState).uiState.activePostId;
-    const activeLink = postsElement.querySelector(`a[data-id="${activePostId}"]`)
+    const { activePostId } = onChange.target(newWatchedState).uiState;
+    const activeLink = postsElement.querySelector(`a[data-id="${activePostId}"]`);
     activeLink.classList.remove('fw-bold');
     activeLink.classList.add('fw-normal', 'link-secondary');
   }
   if (path === 'uiState.activeModalId') {
-    const postsData = onChange.target(watchedState).data.postsData;
-    const activePostId = onChange.target(watchedState).uiState.activePostId;
+    const { postsData } = onChange.target(newWatchedState).data;
+    const { activePostId } = onChange.target(newWatchedState).uiState;
     const modalTitle = document.querySelector('.modal-title');
     const modalBody = document.querySelector('.modal-body');
     const modalFooter = document.querySelector('.modal-footer');
     const modalLink = modalFooter.querySelector('a');
-    const [ activePostData ] = postsData.filter((post) => post.id === Number(activePostId));
+    const [activePostData] = postsData.filter((post) => post.id === Number(activePostId));
     const { title, description, link } = activePostData;
 
     modalTitle.textContent = title;
@@ -112,7 +113,7 @@ export default () => {
       activeModalId: 0,
       activePostId: 0,
       viewedPostsId: [],
-    }
+    },
   };
 
   const elements = {
@@ -155,12 +156,12 @@ export default () => {
             watchedState.data.feedsData.push(feedData);
             watchedState.data.postsData.push(...postsData);
           }).catch((error) => {
-            console.log(error.message)
+            console.log(error.message);
             watchedState.form.error = error.message;
           });
       }).catch((error) => {
         watchedState.form.error = error.message;
       });
-    timeout(watchedState);  
+    timeout(watchedState);
   });
 };

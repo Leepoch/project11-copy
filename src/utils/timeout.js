@@ -1,25 +1,27 @@
 import axios from 'axios';
 import onChange from 'on-change';
-import parser from './parserRSS';
-import prepareData from './prepareData';
+import parser from './parserRSS.js';
+import prepareData from './prepareData.js';
+import addProxy from './addProxy.js';
 
 const timeout = (watchedState) => {
-    setTimeout(() => {
-        const { urls } = onChange.target(watchedState);
-        const oldPosts = onChange.target(watchedState).data.postsData;
-        urls.forEach((url) => {
-            axios.get(`https://allorigins.hexlet.app/raw?disableCache=true&url=${url}`)
-                .then((response) => {
-                    const doc = parser(response.data);
-                    const { postsData } = prepareData(doc, urls.length);
-                    oldPosts.forEach((oldPost) => {
-                        const newPosts = postsData.filter((post) => post.title !== oldPost.title);
-                        console.log(newPosts);
-                    });
-                });
+  setTimeout(() => {
+    const { urls } = onChange.target(watchedState);
+    urls.forEach((url) => {
+      const oldPosts = onChange.target(watchedState).data.postsData;
+      axios.get(addProxy(url))
+        .then((response) => {
+          const doc = parser(response.data);
+          const { postsData } = prepareData(doc, urls.length, oldPosts.length);
+          const oldPostsTitles = oldPosts.map((oldPost) => oldPost.title);
+          postsData.forEach((post) => {
+            if (!oldPostsTitles.includes(post.title)) {
+              watchedState.data.postsData.unshift(post);
+            }
+          });
         });
-
-        timeout(watchedState);
-    }, '5000');
-}
+    });
+    timeout(watchedState);
+  }, '5000');
+};
 export default timeout;
